@@ -1,0 +1,33 @@
+name: Publish AAR to GitHub Packages
+
+on:
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: '11'
+          distribution: 'temurin'
+          server-id: github
+          server-username: ${{ github.actor }}
+          server-password: ${{ secrets.GITHUB_TOKEN }}
+          scope: global
+
+      - name: Publish to GitHub Packages
+        run: |
+          mvn deploy:deploy-file \
+            -Durl=https://maven.pkg.github.com/wanyunhao/ffmpeg-kit-repo \
+            -DrepositoryId=github \
+            -Dfile=ffmpeg-kit-https-6.0-2.aar \
+            -DpomFile=pom.xml
